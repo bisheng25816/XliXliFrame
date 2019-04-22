@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--数据源配置文件-->
+    <context:property-placeholder location="classpath:database.properties"/>
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${driver}"/>
+        <property name="jdbcUrl" value="${url}"/>
+        <property name="user" value="${name}"/>
+        <property name="password" value="${password}"/>
+    </bean>
+
+    <!-- 事物管理器-->
+    <bean id="dataSourceTransactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--基于注解的事物管理-->
+    <tx:annotation-driven transaction-manager="dataSourceTransactionManager"/>
+
+    <!--配置SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactory" class="com.baomidou.mybatisplus.spring.MybatisSqlSessionFactoryBean">
+        <!--数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--引入mybatis-config配置文件-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--配置插件-->
+        <property name="plugins">
+            <list>
+                <bean class="com.baomidou.mybatisplus.plugins.PaginationInterceptor"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--配置mybatis扫描mapper接口的路径-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.XliXli.mapper"/>
+    </bean>
+
+</beans>
